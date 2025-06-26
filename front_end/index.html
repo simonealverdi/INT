@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Interviewer</title>
+  <link rel="stylesheet" href="src/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <style>
+    /* Stili per il popup di login */
+    .login-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .login-popup {
+      background-color: var(--background-color, #ffffff);
+      border-radius: 8px;
+      padding: 30px;
+      width: 350px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .login-popup h2 {
+      margin-top: 0;
+      color: var(--primary-color, #4a90e2);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .login-form .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .login-form label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    
+    .login-form input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+    .login-form button {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--primary-color, #4a90e2);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    
+    .login-form button:hover {
+      background-color: var(--primary-dark, #3a80d2);
+    }
+    
+    .login-error {
+      color: #e74c3c;
+      margin-top: 15px;
+      text-align: center;
+      font-size: 14px;
+    }
+    
+    /* Nascondi il contenuto principale inizialmente */
+    .main-content {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Popup -->
+  <div id="loginOverlay" class="login-overlay">
+    <div class="login-popup">
+      <h2>Accesso</h2>
+      <form id="loginForm" class="login-form">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" placeholder="Inserisci username" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Inserisci password" required>
+        </div>
+        <button type="submit">Accedi</button>
+        <div id="loginError" class="login-error"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Content (inizialmente nascosto) -->
+  <div id="mainContent" class="main-content">
+    <!-- Header con logo -->
+    <div class="search-container">
+      <h1 class="logo">AI Interviewer</h1>
+    
+    <!-- Barra di ricerca (decorativa) -->
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+      </svg>
+      <input type="text" placeholder="Cerca o carica domande per l'intervista" disabled>
+    </div>
+    
+    <!-- Area di upload principale -->
+    <div class="file-upload">
+      <label for="questionFile">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/>
+        </svg>
+        <span>Carica il tuo file di domande</span>
+      </label>
+      <input type="file" id="questionFile" accept=".docx,.csv,.xlsx,.json">
+      <div id="fileName" class="file-name">Nessun file selezionato</div>
+      <button id="uploadBtn" class="btn">Carica Domande</button>
+    </div>
+    
+    <!-- Messaggio di stato e pulsante per iniziare -->
+    <div id="uploadStatus" class="status-message"></div>
+    
+    <div class="action-buttons">
+      <button id="startInterview" class="action-btn disabled">Inizia Intervista</button>
+    </div>
+    </div>
+    
+    <!-- Footer minimalista -->
+    <footer style="position: absolute; bottom: 20px; width: 100%; text-align: center; font-size: 0.8rem; color: var(--text-color); opacity: 0.7;">
+      <p> 2025 AI Interviewer</p>
+    </footer>
+  </div>
+
+  <script type="module" src="src/home.js"></script>
+</body>
+</html>
