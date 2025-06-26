@@ -1,0 +1,10 @@
+# NLP Services Requirements (Python 3.12)
+
+# Web framework & server
+fastapi==0.115.12
+uvicorn[standard]==0.34.2
+
+# NLP e numeric libraries
+spacy==3.7.4
+numpy==1.26.4
+sentence-transformers==2.5.1

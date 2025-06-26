@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        input, select {
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+        }
+        .output {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #4CAF50;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .error {
+            border-left-color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test API FastAPI</h1>
+    
+    <div class="container">
+        <h2>1. Ottieni Token</h2>
+        <div>
+            <label for="username">Username:</label>
+            <input type="text" id="username" value="admin">
+        </div>
+        <div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" value="admin">
+        </div>
+        <button onclick="getToken()">Ottieni Token</button>
+        <div id="token-output" class="output"></div>
+    </div>
+
+    <div class="container">
+        <h2>2. Verifica Sessione</h2>
+        <button onclick="checkSession()">Verifica Sessione</button>
+        <div id="session-output" class="output"></div>
+    </div>
+    
+    <div class="container">
+        <h2>3. Carica Domande</h2>
+        <div>
+            <label for="questions-file">File Domande (JSON, CSV, DOCX, XLS):</label>
+            <input type="file" id="questions-file">
+        </div>
+        <button onclick="loadQuestions()">Carica Domande</button>
+        <div id="load-output" class="output"></div>
+    </div>
+
+    <div class="container">
+        <h2>4. Testa Voci Polly</h2>
+        <div>
+            <label for="test-text">Testo di prova:</label>
+            <input type="text" id="test-text" value="Ciao, questa è una prova della mia voce.">
+        </div>
+        <button onclick="testVoices()">Testa Voci</button>
+        <div id="voices-output" class="output"></div>
+        <div id="audio-container"></div>
+    </div>
+
+    <script>
+        // Variabili globali
+        let apiToken = '';
+        const API_URL = 'http://localhost:8000';
+
+        // Funzione per recuperare token
+        async function getToken() {
+            const outputDiv = document.getElementById('token-output');
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            outputDiv.innerHTML = 'Richiesta in corso...';
+            outputDiv.className = 'output';
+            
+            try {
+                const formData = new URLSearchParams();
+                formData.append('username', username);
+                formData.append('password', password);
+                
+                const response = await fetch(`${API_URL}/token`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    apiToken = data.access_token;
+                    outputDiv.innerHTML = `Token ottenuto con successo!\n\nToken: ${apiToken}`;
+                } else {
+                    outputDiv.innerHTML = `Errore: ${data.detail || response.statusText}`;
+                    outputDiv.className = 'output error';
+                }
+            } catch (error) {
+                outputDiv.innerHTML = `Errore di connessione: ${error.message}`;
+                outputDiv.className = 'output error';
+            }
+        }
+
+        // Funzione per verificare sessione
+        async function checkSession() {
+            const outputDiv = document.getElementById('session-output');
+            
+            outputDiv.innerHTML = 'Richiesta in corso...';
+            outputDiv.className = 'output';
+            
+            try {
+                const headers = apiToken ? {
+                    'Authorization': `Bearer ${apiToken}`
+                } : {};
+                
+                const response = await fetch(`${API_URL}/check_session`, {
+                    method: 'GET',
+                    headers: headers
+                });
+                
+                const data = await response.json();
+                outputDiv.innerHTML = JSON.stringify(data, null, 2);
+            } catch (error) {
+                outputDiv.innerHTML = `Errore di connessione: ${error.message}`;
+                outputDiv.className = 'output error';
+            }
+        }
+
+        // Funzione per caricare domande
+        async function loadQuestions() {
+            const outputDiv = document.getElementById('load-output');
+            const fileInput = document.getElementById('questions-file');
+            
+            if (!apiToken) {
+                outputDiv.innerHTML = 'Errore: Devi prima ottenere un token!';
+                outputDiv.className = 'output error';
+                return;
+            }
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                outputDiv.innerHTML = 'Errore: Seleziona un file da caricare!';
+                outputDiv.className = 'output error';
+                return;
+            }
+            
+            outputDiv.innerHTML = 'Caricamento in corso...';
+            outputDiv.className = 'output';
+            
+            try {
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                
+                const response = await fetch(`${API_URL}/load_questions`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiToken}`
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                outputDiv.innerHTML = JSON.stringify(data, null, 2);
+            } catch (error) {
+                outputDiv.innerHTML = `Errore di caricamento: ${error.message}`;
+                outputDiv.className = 'output error';
+            }
+        }
+
+        // Funzione per testare le voci Polly
+        async function testVoices() {
+            const outputDiv = document.getElementById('voices-output');
+            const audioContainer = document.getElementById('audio-container');
+            const testText = document.getElementById('test-text').value;
+            
+            if (!apiToken) {
+                outputDiv.innerHTML = 'Errore: Devi prima ottenere un token!';
+                outputDiv.className = 'output error';
+                return;
+            }
+            
+            outputDiv.innerHTML = 'Caricamento voci in corso...';
+            outputDiv.className = 'output';
+            audioContainer.innerHTML = '';
+            
+            try {
+                const response = await fetch(`${API_URL}/test_voices?text=${encodeURIComponent(testText)}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${apiToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                outputDiv.innerHTML = `Voci trovate: ${Object.keys(data).length}`;
+                
+                // Crea i player audio per ogni voce
+                Object.entries(data).forEach(([voiceId, voiceData]) => {
+                    const voiceDiv = document.createElement('div');
+                    voiceDiv.style.margin = '10px 0';
+                    voiceDiv.style.padding = '10px';
+                    voiceDiv.style.backgroundColor = '#f9f9f9';
+                    voiceDiv.style.borderRadius = '4px';
+                    
+                    const audioEl = document.createElement('audio');
+                    audioEl.controls = true;
+                    audioEl.src = voiceData.audio_url;
+                    
+                    const voiceInfo = document.createElement('div');
+                    voiceInfo.textContent = `${voiceData.name} (${voiceData.gender}) - ${voiceData.language} - Engine: ${voiceData.engine}`;
+                    voiceInfo.style.marginBottom = '5px';
+                    
+                    voiceDiv.appendChild(voiceInfo);
+                    voiceDiv.appendChild(audioEl);
+                    audioContainer.appendChild(voiceDiv);
+                });
+            } catch (error) {
+                outputDiv.innerHTML = `Errore: ${error.message}`;
+                outputDiv.className = 'output error';
+            }
+        }
+    </script>
+</body>
+</html>

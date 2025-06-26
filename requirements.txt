@@ -1,0 +1,52 @@
+# AI Interview - Backend Dependencies (Python 3.13)
+
+# Web framework & server
+fastapi==0.115.12
+uvicorn[standard]==0.34.2
+#starlette==0.40.0 # constrained to <0.37 for FastAPI compatibility
+
+# Configuration & multipart handling
+python-dotenv==1.1.0
+python-multipart==0.0.20
+
+# Data validation
+pydantic==2.11.5
+
+# HTTP clients
+requests==2.31.0
+httpx==0.28.1
+
+# Authentication & security
+python-jose==3.4.0
+passlib==1.7.4
+bcrypt==4.3.0
+
+# OpenAI API client
+openai==1.82.0
+
+# AWS (per Polly TTS)
+boto3==1.38.22
+
+# MongoDB async
+pymongo==4.10.1
+motor==3.7.1
+
+# Gestione file e multimedia
+python-ffmpeg==2.0.11
+
+# Elaborazione del testo e NLP
+# Nota: spaCy è stato rimosso e spostato nel microservizio NLP separato
+numpy==2.2.0
+json5==0.12.0
+python-docx==1.1.2
+unidecode==1.4.0
+rapidfuzz==3.13.0
+
+# Elaborazione dati
+pandas==2.2.3
+openpyxl==3.1.5
+xlrd==2.0.1
+xlsxwriter==3.2.0
+
+# Tipizzazione
+typing-extensions==4.13.2

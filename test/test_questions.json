@@ -1,0 +1,17 @@
+[
+  {
+    "Domanda": "Raccontami delle tue esperienze di leadership in un contesto lavorativo.",
+    "Tipologia": "main",
+    "Topic": "Leadership"
+  },
+  {
+    "Domanda": "Quali sono i punti principali che consideri quando devi prendere una decisione importante?",
+    "Tipologia": "main",
+    "Topic": "Decision Making"
+  },
+  {
+    "Domanda": "Parla di una situazione in cui hai dovuto risolvere un problema complesso. Come l'hai affrontato?",
+    "Tipologia": "main",
+    "Topic": "Problem Solving"
+  }
+]
